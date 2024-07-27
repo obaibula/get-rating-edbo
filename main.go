@@ -101,10 +101,10 @@ func getStudents() ([]student, error) {
 		if err != nil {
 			return nil, err
 		}
+		students = append(students, data.Students...)
 		if len(data.Students) < 200 {
 			break
 		}
-		students = append(students, data.Students...)
 	}
 	return students, nil
 }
