@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -96,8 +98,15 @@ func getStudents() ([]student, error) {
 		}
 		defer res.Body.Close()
 
+		/*respBody := new(bytes.Buffer)
+		respBody.ReadFrom(res.Body)
+		fmt.Println("Response Status:", res.Status)
+		fmt.Println("Response Body:", respBody.String())*/
+		bodyerr, err := io.ReadAll(res.Body)
+		body := strings.Replace(string(bodyerr), "Помилка. Зверніться до системного адміністратора", "", -1)
 		var data studentsResponse
-		err = json.NewDecoder(res.Body).Decode(&data)
+		//err = json.NewDecoder(res.Body).Decode(&data)
+		err = json.NewDecoder(strings.NewReader(body)).Decode(&data)
 		if err != nil {
 			return nil, err
 		}
