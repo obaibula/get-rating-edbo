@@ -52,6 +52,7 @@ const (
 	edboUrl     = "https://vstup.edbo.gov.ua/offer-requests/"
 	alinaId     = 13670738
 	alinaRating = 154.640
+	maxQuota    = 10
 )
 
 func main() {
@@ -60,7 +61,12 @@ func main() {
 		fmt.Println("Error getting students", err)
 		return
 	}
-	result := make([]student, 0, 1000)
+	currentRating := getCurrentRatingBasedOnFirstPriority(students)
+	fmt.Println("Your current rating is:", currentRating)
+}
+
+func getCurrentRatingBasedOnFirstPriority(students []student) int {
+	result := make([]student, 0, len(students))
 	for _, s := range students {
 		hasQuota := false
 		for _, q := range s.Quota {
@@ -78,8 +84,7 @@ func main() {
 			result = append(result, s)
 		}
 	}
-	currentRating := len(result) + 10
-	fmt.Println("Your current rating is:", currentRating)
+	return len(result) + maxQuota
 }
 
 func getStudents() ([]student, error) {
