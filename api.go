@@ -55,6 +55,7 @@ func fetchStudentsBatch(last int) (studentsResponse, error) {
 	err = json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
 		return data, errors.New(fmt.Sprintf("failed to parse json from response from edbo: %s", err.Error()))
+		//todo: add a wa if json contains "помилка"
 	}
 	return data, err
 }
