@@ -51,8 +51,8 @@ const (
 	facultyId   = "1338098"
 	edboUrl     = "https://vstup.edbo.gov.ua/offer-requests/"
 	alinaId     = 13670738
-	alinaRating = 154.640
-	maxQuota    = 10
+	alinaRating = 154.64
+	maxQuota    = 10 // number of places for people with quota (will be occupied in any case)
 )
 
 func main() {
@@ -63,24 +63,71 @@ func main() {
 	}
 	currentRating := getCurrentRatingBasedOnFirstPriority(students)
 	fmt.Println("Your current rating is:", currentRating)
+
+}
+
+type studentPredicate func(student) bool
+
+func (sp studentPredicate) and(other studentPredicate) studentPredicate {
+	return func(s student) bool {
+		return sp(s) && other(s)
+	}
+}
+
+func (sp studentPredicate) or(other studentPredicate) studentPredicate {
+	return func(s student) bool {
+		return sp(s) || other(s)
+	}
+}
+
+func (sp studentPredicate) negate() studentPredicate {
+	return func(s student) bool {
+		return !sp(s)
+	}
+}
+
+func hasQuota() studentPredicate {
+	return func(s student) bool {
+		for _, q := range s.Quota {
+			if q.Quota != "" {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func notRejected() studentPredicate {
+	return func(s student) bool {
+		return s.Status != Rejected
+	}
+}
+
+func ratingAboveOrEqual(threshold float64) studentPredicate {
+	return func(s student) bool {
+		return s.Rating >= threshold
+	}
+}
+
+func priorityAbove(threshold int) studentPredicate {
+	return func(s student) bool {
+		return s.Priority <= threshold && s.Priority > 0 // 0 priority is reserved for contract
+	}
 }
 
 func getCurrentRatingBasedOnFirstPriority(students []student) int {
+	predicate := hasQuota().negate().
+		and(notRejected()).
+		and(ratingAboveOrEqual(alinaRating)).
+		and(priorityAbove(1))
+
+	return filter(students, predicate)
+}
+
+func filter(students []student, predicate studentPredicate) int {
 	result := make([]student, 0, len(students))
 	for _, s := range students {
-		hasQuota := false
-		for _, q := range s.Quota {
-			if q.Quota != "" {
-				hasQuota = true
-			}
-		}
-		predicate := s.Status != Rejected &&
-			s.Rating >= alinaRating &&
-			s.Priority <= 1 &&
-			s.Priority > 0 &&
-			!hasQuota
-
-		if predicate {
+		if predicate(s) {
 			result = append(result, s)
 		}
 	}
