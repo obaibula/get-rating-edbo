@@ -8,7 +8,7 @@ type status int
 
 const (
 	Uncategorized status = iota
-	Applicated
+	Applied
 	Unknown1
 	Unknown2
 	Rejected
@@ -40,10 +40,10 @@ type student struct {
 	Artid      int      `json:"artid"`
 	Rating     float64  `json:"kv"`
 	Priority   priority `json:"p"`
-	Quota      []rss    `json:"rss"`
+	Quota      []quota  `json:"rss"`
 }
 
-type rss struct {
+type quota struct {
 	Type  string `json:"t"`
 	Quota string `json:"sn"`
 }
