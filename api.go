@@ -5,15 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
 const (
-	edboUrl   = "https://vstup.edbo.gov.ua/offer-requests/"
-	facultyId = "1338098"
+	edboUrl          = "https://vstup.edbo.gov.ua/offer-requests/"
+	facultyId        = "1338098"
+	edboErrorMessage = "Помилка. Зверніться до системного адміністратора"
 )
 
 func getStudents() ([]student, error) {
@@ -23,7 +27,6 @@ func getStudents() ([]student, error) {
 		if err != nil {
 			return nil, err
 		}
-		//todo: what if data is empty?
 		students = append(students, data.Students...)
 		if len(data.Students) < 200 {
 			break
@@ -54,10 +57,27 @@ func fetchStudentsBatch(last int) (studentsResponse, error) {
 
 	err = json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
-		return data, errors.New(fmt.Sprintf("failed to parse json from response from edbo: %s", err.Error()))
-		//todo: add a wa if json contains "помилка"
+		slog.Info("failed to parse json from response from edbo", "msg", err)
+		slog.Info("retrying with workaround of `помилка` error from edbo...")
+		body, repairErr := repairCorruptedBody(res.Body)
+		if repairErr != nil {
+			return data, errors.New(fmt.Sprintf("failed with workaround: %s", err.Error()))
+		}
+		err = json.NewDecoder(body).Decode(&data)
+		if err != nil {
+			return data, errors.New(fmt.Sprintf("failed to parse json from response from edbo: %s", err.Error()))
+		}
 	}
 	return data, err
+}
+
+func repairCorruptedBody(corruptedBody io.ReadCloser) (io.Reader, error) {
+	bodyBytes, err := io.ReadAll(corruptedBody)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to parse json from response from edbo: %s", err.Error()))
+	}
+	repairedBody := strings.Replace(string(bodyBytes), edboErrorMessage, "", -1)
+	return strings.NewReader(repairedBody), nil
 }
 
 func createRequest(last int) (*http.Request, error) {

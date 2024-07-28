@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 )
 
 const (
@@ -12,7 +13,7 @@ const (
 func main() {
 	students, err := getStudents()
 	if err != nil {
-		fmt.Println("Error getting students", err)
+		slog.Error("Error getting students", "msg", err)
 		return
 	}
 	fmt.Println("Your place based on first priority is:", getCurrentPlaceBasedOnPriority(students, First))
