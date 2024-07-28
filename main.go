@@ -15,16 +15,18 @@ func main() {
 		fmt.Println("Error getting students", err)
 		return
 	}
-	currentRating := getCurrentRatingBasedOnFirstPriority(students)
-	fmt.Println("Your current rating is:", currentRating)
-
+	fmt.Println("Your place based on first priority is:", getCurrentPlaceBasedOnPriority(students, First))
+	fmt.Println("Your place based on second priority is:", getCurrentPlaceBasedOnPriority(students, Second))
+	fmt.Println("Your place based on third priority is:", getCurrentPlaceBasedOnPriority(students, Third))
+	fmt.Println("Your place based on third priority is:", getCurrentPlaceBasedOnPriority(students, Fourth))
+	fmt.Println("Your place based on third priority is:", getCurrentPlaceBasedOnPriority(students, Fifth))
 }
 
-func getCurrentRatingBasedOnFirstPriority(students []student) int {
+func getCurrentPlaceBasedOnPriority(students []student, priority priority) int {
 	predicate := hasQuota().negate().
 		and(notRejected()).
 		and(ratingAboveOrEqual(alinaRating)).
-		and(priorityAbove(1))
+		and(priorityAbove(priority))
 
 	return filter(students, predicate)
 }

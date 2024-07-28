@@ -43,9 +43,9 @@ func ratingAboveOrEqual(threshold float64) studentPredicate {
 	}
 }
 
-func priorityAbove(threshold int) studentPredicate {
+func priorityAbove(priority priority) studentPredicate {
 	return func(s student) bool {
-		return s.Priority <= threshold && s.Priority > 0 // 0 priority is reserved for contract
+		return s.Priority <= priority && s.Priority > 0 // 0 priority is reserved for contract
 	}
 }
 
