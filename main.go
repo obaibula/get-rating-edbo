@@ -18,8 +18,8 @@ func main() {
 	fmt.Println("Your place based on first priority is:", getCurrentPlaceBasedOnPriority(students, First))
 	fmt.Println("Your place based on second priority is:", getCurrentPlaceBasedOnPriority(students, Second))
 	fmt.Println("Your place based on third priority is:", getCurrentPlaceBasedOnPriority(students, Third))
-	fmt.Println("Your place based on third priority is:", getCurrentPlaceBasedOnPriority(students, Fourth))
-	fmt.Println("Your place based on third priority is:", getCurrentPlaceBasedOnPriority(students, Fifth))
+	fmt.Println("Your place based on fourth priority is:", getCurrentPlaceBasedOnPriority(students, Fourth))
+	fmt.Println("Your place based on fifth priority is:", getCurrentPlaceBasedOnPriority(students, Fifth))
 }
 
 func getCurrentPlaceBasedOnPriority(students []student, priority priority) int {
