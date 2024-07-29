@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	alinaRating = 164.64
+	alinaRating = 154.64
 	maxQuota    = 10 // number of places for people with quota (will be occupied in any case)
 )
 
