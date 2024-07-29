@@ -20,14 +20,14 @@ func (sp studentPredicate) negate() studentPredicate {
 	}
 }
 
-func filter(students []student, predicate studentPredicate) int {
+func filter(students []student, predicate studentPredicate) []student {
 	result := make([]student, 0, len(students))
 	for _, s := range students {
 		if predicate(s) {
 			result = append(result, s)
 		}
 	}
-	return len(result) + maxQuota
+	return result
 }
 
 func hasQuota() studentPredicate {
