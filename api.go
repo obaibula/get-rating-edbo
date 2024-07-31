@@ -22,15 +22,15 @@ const (
 
 func getStudents() ([]student, error) {
 	students := make([]student, 0, 1000)
-	for last := 0; ; last += 200 {
+	for last := 0; ; last += len(students) {
 		data, err := fetchStudentsBatch(last)
 		if err != nil {
 			return nil, err
 		}
-		students = append(students, data.Students...)
-		if len(data.Students) < 200 {
+		if len(data.Students) <= 0 {
 			break
 		}
+		students = append(students, data.Students...)
 	}
 	return students, nil
 }
@@ -39,8 +39,6 @@ func getStudents() ([]student, error) {
 // The `last` parameter is a "page-like" variable used by the EDBO to paginate results.
 // If `last` is 0, EDBO returns the first 200 students.
 // If `last` is 200, EDBO returns the next 200 students starting from the 200th student.
-// The function always attempts to return 200 students, but if there are fewer than 200 remaining,
-// it will return all the remaining students.
 func fetchStudentsBatch(last int) (studentsResponse, error) {
 	var data studentsResponse
 	req, err := createRequest(last)
